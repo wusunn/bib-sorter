@@ -32,18 +32,24 @@ def extract_title_initial(entry):
 
 def sort_key(entry):
     return (extract_year(entry), extract_title_initial(entry))
+def sort_key_by_title(entry):
+    return ( extract_title_initial(entry),)
 
 def main():
     parser = argparse.ArgumentParser(
         description="按年份升序，年份相同时按 title 首字母升序 排序 .bib 文件条目")
-    parser.add_argument("input", help="输入 .bib 文件，比如 refs.bib")
-    parser.add_argument("output", help="输出 .bib 文件，比如 sorted_refs.bib")
+    parser.add_argument("--input", help="输入 .bib 文件，比如 refs.bib",default="refs.bib")
+    parser.add_argument("--output", help="输出 .bib 文件，比如 sorted_refs.bib",default="sorted_refs.bib")
+    parser.add_argument("--sort", help="排序规则,取值是y或者t. y表示安装year排序,然后. t 表示安装文章第一个字母排序",default="t")
     args = parser.parse_args()
 
     text = open(args.input, encoding='utf-8').read()
     entries = split_entries(text)
     # 排序
-    entries_sorted = sorted(entries, key=sort_key)
+    if args.sort == "t":
+        entries_sorted = sorted(entries, key=sort_key_by_title)
+    else:
+        entries_sorted = sorted(entries, key=sort_key)
     # 写回
     with open(args.output, 'w', encoding='utf-8') as fo:
         fo.write('\n\n'.join(e.strip() for e in entries_sorted))
